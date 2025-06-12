@@ -1,362 +1,570 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Batu Gunting Kertas - Lobi Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827; /* bg-gray-900 */
-        }
-        .font-title {
-            font-family: 'Poppins', sans-serif;
-        }
-        .btn {
-            transition: all 0.2s ease-in-out;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-        .btn-primary {
-            background-color: #4f46e5; /* bg-indigo-600 */
-        }
-        .btn-primary:hover {
-            background-color: #4338ca; /* hover:bg-indigo-700 */
-        }
-        .btn-secondary {
-            background-color: #1f2937; /* bg-gray-800 */
-        }
-        .btn-secondary:hover {
-             background-color: #374151; /* hover:bg-gray-700 */
-        }
-        .hidden-view {
-            display: none;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #111827;
+      }
+      .font-title {
+        font-family: "Poppins", sans-serif;
+      }
+      .btn {
+        transition: all 0.2s ease-in-out;
+      }
+      .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+      }
+      .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+      .btn-primary {
+        background-color: #4f46e5;
+      }
+      .btn-primary:hover:not(:disabled) {
+        background-color: #4338ca;
+      }
+      .btn-secondary {
+        background-color: #1f2937;
+      }
+      .btn-secondary:hover:not(:disabled) {
+        background-color: #374151;
+      }
+      .hidden-view {
+        display: none;
+      }
+
+      /* Toast Notification Styles */
+      #toast-notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        border-radius: 8px;
+        color: white;
+        z-index: 100;
+        transition: opacity 0.5s, top 0.5s;
+        opacity: 0;
+      }
+      #toast-notification.show {
+        top: 40px;
+        opacity: 1;
+      }
+      .toast-success {
+        background-color: #16a34a;
+      }
+      .toast-error {
+        background-color: #dc2626;
+      }
+      .toast-info {
+        background-color: #2563eb;
+      }
     </style>
-</head>
-<body class="text-white flex items-center justify-center min-h-screen p-4">
+  </head>
+  <body class="text-white flex items-center justify-center min-h-screen p-4">
+    <!-- TOAST NOTIFICATION ELEMENT -->
+    <div id="toast-notification"></div>
 
     <!-- LOBBY VIEW -->
     <div id="lobby-view" class="w-full max-w-md text-center">
-        <h1 class="font-title text-4xl md:text-5xl font-bold mb-8">Batu Gunting Kertas</h1>
-        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
-            <h2 class="text-2xl font-semibold mb-6">Selamat Datang!</h2>
-            <input id="player-name-input" type="text" placeholder="Masukkan Nama Anda" class="w-full bg-gray-700 text-white placeholder-gray-400 p-3 rounded-lg mb-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            
-            <button id="create-room-btn" class="btn btn-primary w-full py-3 rounded-lg font-semibold text-lg mb-4">Buat Room Baru</button>
-            
-            <div class="flex items-center my-6">
-                <hr class="w-full border-gray-600">
-                <span class="px-4 text-gray-400">ATAU</span>
-                <hr class="w-full border-gray-600">
-            </div>
+      <h1 class="font-title text-4xl md:text-5xl font-bold mb-4">
+        Batu Gunting Kertas
+      </h1>
 
-            <input id="room-code-input" type="text" placeholder="Masukkan Kode Room" class="w-full bg-gray-700 text-white placeholder-gray-400 p-3 rounded-lg mb-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <button id="join-room-btn" class="btn btn-secondary w-full py-3 rounded-lg font-semibold text-lg">Gabung Room</button>
-            <p id="lobby-error" class="text-red-400 mt-4 h-5"></p>
+      <!-- How to Play Section -->
+      <div class="bg-gray-800 p-6 rounded-xl shadow-lg mb-8 text-left">
+        <h3 class="font-bold text-lg mb-2 text-center">Cara Bermain</h3>
+        <ol class="list-decimal list-inside text-gray-300 space-y-1">
+          <li>Masukkan nama Anda.</li>
+          <li><b>Buat Room:</b> Klik "Buat Room Baru" & bagikan kodenya.</li>
+          <li><b>Gabung Room:</b> Masukkan kode dari teman & klik "Gabung".</li>
+        </ol>
+      </div>
+
+      <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
+        <input
+          id="player-name-input"
+          type="text"
+          placeholder="Masukkan Nama Anda"
+          class="w-full bg-gray-700 text-white placeholder-gray-400 p-3 rounded-lg mb-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <button
+          id="create-room-btn"
+          class="btn btn-primary w-full py-3 rounded-lg font-semibold text-lg mb-4"
+        >
+          Buat Room Baru
+        </button>
+        <div class="flex items-center my-6">
+          <hr class="w-full border-gray-600" />
+          <span class="px-4 text-gray-400">ATAU</span>
+          <hr class="w-full border-gray-600" />
         </div>
+        <input
+          id="room-code-input"
+          type="text"
+          placeholder="Masukkan Kode Room"
+          class="w-full bg-gray-700 text-white placeholder-gray-400 p-3 rounded-lg mb-4 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+        <button
+          id="join-room-btn"
+          class="btn btn-secondary w-full py-3 rounded-lg font-semibold text-lg"
+        >
+          Gabung Room
+        </button>
+        <p id="lobby-error" class="text-red-400 mt-4 h-5"></p>
+      </div>
     </div>
 
     <!-- GAME VIEW -->
     <div id="game-view" class="w-full max-w-3xl text-center hidden-view">
-        <div class="flex justify-between items-center mb-4">
-            <button id="leave-room-btn" class="btn btn-secondary py-2 px-4 rounded-lg">← Keluar</button>
-            <div class="text-center">
-                <p class="text-sm text-gray-400">KODE ROOM</p>
-                <div class="flex items-center justify-center gap-2">
-                    <strong id="room-code-display" class="text-2xl font-bold tracking-widest text-yellow-400"></strong>
-                    <button id="copy-code-btn" title="Salin Kode">📋</button>
-                </div>
-            </div>
-            <div class="w-20"></div> <!-- Spacer -->
-        </div>
-
-        <p id="status-message" class="text-indigo-300 text-lg mb-4 h-6">Menginisialisasi permainan...</p>
-        
-        <div class="grid grid-cols-2 gap-4 md:gap-8 mb-6">
-            <div id="p1-card" class="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg border-2 border-transparent">
-                <h2 id="player1-name" class="text-xl font-semibold mb-4 truncate">Pemain 1</h2>
-                <div class="bg-gray-700 w-24 h-24 md:w-32 md:h-32 mx-auto rounded-lg flex items-center justify-center">
-                    <span id="player1-choice-text" class="text-4xl md:text-5xl">?</span>
-                </div>
-            </div>
-            <div id="p2-card" class="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg border-2 border-transparent">
-                <h2 id="player2-name" class="text-xl font-semibold mb-4 truncate">Pemain 2</h2>
-                 <div class="bg-gray-700 w-24 h-24 md:w-32 md:h-32 mx-auto rounded-lg flex items-center justify-center">
-                    <span id="player2-choice-text" class="text-4xl md:text-5xl">?</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="h-12 mb-4">
-             <h2 id="result-message" class="text-3xl font-bold text-yellow-400"></h2>
-        </div>
-
-        <div id="choices" class="flex justify-center items-center gap-4 md:gap-6 mb-8">
-            <button id="rock" class="btn text-4xl p-4 bg-indigo-600 rounded-full shadow-lg">🪨</button>
-            <button id="paper" class="btn text-4xl p-4 bg-indigo-600 rounded-full shadow-lg">📜</button>
-            <button id="scissors" class="btn text-4xl p-4 bg-indigo-600 rounded-full shadow-lg">✂️</button>
-        </div>
-        
-        <button id="play-again-btn" class="hidden btn btn-primary font-bold py-3 px-8 rounded-lg text-xl">
-            Main Lagi
+      <div class="flex justify-between items-center mb-4">
+        <button
+          id="leave-room-btn"
+          class="btn btn-secondary py-2 px-4 rounded-lg"
+        >
+          ← Keluar
         </button>
+        <div class="text-center">
+          <p class="text-sm text-gray-400">KODE ROOM</p>
+          <div class="flex items-center justify-center gap-2">
+            <strong
+              id="room-code-display"
+              class="text-2xl font-bold tracking-widest text-yellow-400"
+            ></strong
+            ><button id="copy-code-btn" title="Salin Kode">📋</button>
+          </div>
+        </div>
+        <div class="w-20"></div>
+      </div>
+      <p id="status-message" class="text-indigo-300 text-lg mb-4 h-6">
+        Menginisialisasi permainan...
+      </p>
+      <div class="grid grid-cols-2 gap-4 md:gap-8 mb-6">
+        <div
+          id="p1-card"
+          class="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg border-2 border-transparent"
+        >
+          <h2 id="player1-name" class="text-xl font-semibold mb-4 truncate">
+            Pemain 1
+          </h2>
+          <div
+            class="bg-gray-700 w-24 h-24 md:w-32 md:h-32 mx-auto rounded-lg flex items-center justify-center"
+          >
+            <span id="player1-choice-text" class="text-4xl md:text-5xl">?</span>
+          </div>
+        </div>
+        <div
+          id="p2-card"
+          class="bg-gray-800 p-4 md:p-6 rounded-xl shadow-lg border-2 border-transparent"
+        >
+          <h2 id="player2-name" class="text-xl font-semibold mb-4 truncate">
+            Pemain 2
+          </h2>
+          <div
+            class="bg-gray-700 w-24 h-24 md:w-32 md:h-32 mx-auto rounded-lg flex items-center justify-center"
+          >
+            <span id="player2-choice-text" class="text-4xl md:text-5xl">?</span>
+          </div>
+        </div>
+      </div>
+      <div class="h-12 mb-4">
+        <h2 id="result-message" class="text-3xl font-bold text-yellow-400"></h2>
+      </div>
+      <div
+        id="choices"
+        class="flex justify-center items-center gap-4 md:gap-6 mb-8"
+      >
+        <button
+          id="rock"
+          class="btn text-4xl p-4 bg-indigo-600 rounded-full shadow-lg"
+        >
+          🪨</button
+        ><button
+          id="paper"
+          class="btn text-4xl p-4 bg-indigo-600 rounded-full shadow-lg"
+        >
+          📜</button
+        ><button
+          id="scissors"
+          class="btn text-4xl p-4 bg-indigo-600 rounded-full shadow-lg"
+        >
+          ✂️
+        </button>
+      </div>
+      <button
+        id="play-again-btn"
+        class="hidden-view btn btn-primary font-bold py-3 px-8 rounded-lg text-xl"
+      ></button>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc, getDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        onAuthStateChanged,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        onSnapshot,
+        setDoc,
+        updateDoc,
+        getDoc,
+        collection,
+        deleteDoc,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyCXU7oqo3m3ry7om9qQ5zfOGTu-mL_YOrc",
-          authDomain: "realtime-database-99f23.firebaseapp.com",
-          databaseURL: "https://realtime-database-99f23-default-rtdb.firebaseio.com",
-          projectId: "realtime-database-99f23",
-          storageBucket: "realtime-database-99f23.firebasestorage.app",
-          messagingSenderId: "642043922874",
-          appId: "1:642043922874:web:6222047848a815392cf583",
-          measurementId: "G-2MP7Y5LW2B"
-        };
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyCXU7oqo3m3ry7om9qQ5zfOGTu-mL_YOrc",
+        authDomain: "realtime-database-99f23.firebaseapp.com",
+        databaseURL:
+          "https://realtime-database-99f23-default-rtdb.firebaseio.com",
+        projectId: "realtime-database-99f23",
+        storageBucket: "realtime-database-99f23.firebasestorage.app",
+        messagingSenderId: "642043922874",
+        appId: "1:642043922874:web:6222047848a815392cf583",
+        measurementId: "G-2MP7Y5LW2B",
+      };
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const gamesCollection = collection(db, "rps-rooms");
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const gamesCollection = collection(db, "rps-rooms");
 
-        // UI Elements
-        const lobbyView = document.getElementById('lobby-view');
-        const gameView = document.getElementById('game-view');
-        const playerNameInput = document.getElementById('player-name-input');
-        const createRoomBtn = document.getElementById('create-room-btn');
-        const roomCodeInput = document.getElementById('room-code-input');
-        const joinRoomBtn = document.getElementById('join-room-btn');
-        const lobbyError = document.getElementById('lobby-error');
-        const roomCodeDisplay = document.getElementById('room-code-display');
-        const copyCodeBtn = document.getElementById('copy-code-btn');
-        const leaveRoomBtn = document.getElementById('leave-room-btn');
-        const statusMessage = document.getElementById('status-message');
-        const player1NameEl = document.getElementById('player1-name');
-        const player2NameEl = document.getElementById('player2-name');
-        const p1Card = document.getElementById('p1-card');
-        const p2Card = document.getElementById('p2-card');
-        const player1ChoiceText = document.getElementById('player1-choice-text');
-        const player2ChoiceText = document.getElementById('player2-choice-text');
-        const resultMessage = document.getElementById('result-message');
-        const choiceButtons = document.getElementById('choices');
-        const playAgainBtn = document.getElementById('play-again-btn');
+      const lobbyView = document.getElementById("lobby-view"),
+        gameView = document.getElementById("game-view"),
+        playerNameInput = document.getElementById("player-name-input"),
+        createRoomBtn = document.getElementById("create-room-btn"),
+        roomCodeInput = document.getElementById("room-code-input"),
+        joinRoomBtn = document.getElementById("join-room-btn"),
+        lobbyError = document.getElementById("lobby-error"),
+        roomCodeDisplay = document.getElementById("room-code-display"),
+        copyCodeBtn = document.getElementById("copy-code-btn"),
+        leaveRoomBtn = document.getElementById("leave-room-btn"),
+        statusMessage = document.getElementById("status-message"),
+        player1NameEl = document.getElementById("player1-name"),
+        player2NameEl = document.getElementById("player2-name"),
+        p1Card = document.getElementById("p1-card"),
+        p2Card = document.getElementById("p2-card"),
+        player1ChoiceText = document.getElementById("player1-choice-text"),
+        player2ChoiceText = document.getElementById("player2-choice-text"),
+        resultMessage = document.getElementById("result-message"),
+        choiceButtons = document.getElementById("choices"),
+        playAgainBtn = document.getElementById("play-again-btn"),
+        toast = document.getElementById("toast-notification");
 
-        // State
-        let currentUserId = null;
-        let currentPlayerName = '';
-        let currentRoomId = null;
-        let playerNumber = null;
-        let unsubscribeGame = null; 
+      let currentUserId = null,
+        currentPlayerName = "",
+        currentRoomId = null,
+        playerNumber = null,
+        unsubscribeGame = null,
+        opponentNameCache = "";
 
-        const switchView = (view) => {
-            if (view === 'game') {
-                lobbyView.classList.add('hidden-view');
-                gameView.classList.remove('hidden-view');
-            } else {
-                gameView.classList.add('hidden-view');
-                lobbyView.classList.remove('hidden-view');
-                if (unsubscribeGame) unsubscribeGame();
-                resetGameState();
-            }
-        };
+      // NEW: Toast Notification Function
+      let toastTimeout;
+      const showToast = (message, type = "info") => {
+        clearTimeout(toastTimeout);
+        toast.textContent = message;
+        toast.className = `toast-${type}`;
+        toast.classList.add("show");
+        toastTimeout = setTimeout(() => {
+          toast.classList.remove("show");
+        }, 4000);
+      };
 
-        const resetGameState = () => {
-            currentRoomId = null;
-            playerNumber = null;
-            unsubscribeGame = null;
-            lobbyError.textContent = '';
-            roomCodeInput.value = '';
-        };
+      const switchView = (view) => {
+        if (view === "game") {
+          lobbyView.classList.add("hidden-view");
+          gameView.classList.remove("hidden-view");
+        } else {
+          gameView.classList.add("hidden-view");
+          lobbyView.classList.remove("hidden-view");
+          if (unsubscribeGame) unsubscribeGame();
+          resetGameState();
+        }
+      };
 
-        const validatePlayerName = () => {
-            const name = playerNameInput.value.trim();
-            if (!name) {
-                lobbyError.textContent = 'Nama tidak boleh kosong.';
-                return false;
-            }
-            currentPlayerName = name;
-            return true;
-        };
+      const resetGameState = () => {
+        currentRoomId = null;
+        playerNumber = null;
+        unsubscribeGame = null;
+        opponentNameCache = "";
+        lobbyError.textContent = "";
+        roomCodeInput.value = "";
+      };
 
-        createRoomBtn.addEventListener('click', async () => {
-            if (!validatePlayerName()) return;
-            const roomId = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const gameRef = doc(gamesCollection, roomId);
-            await setDoc(gameRef, {
-                players: {
-                    player1: { uid: currentUserId, name: currentPlayerName, choice: null },
-                    player2: null
-                },
+      const validatePlayerName = () => {
+        const name = playerNameInput.value.trim();
+        if (!name) {
+          lobbyError.textContent = "Nama tidak boleh kosong.";
+          return false;
+        }
+        currentPlayerName = name;
+        return true;
+      };
+
+      createRoomBtn.addEventListener("click", async () => {
+        if (!validatePlayerName()) return;
+        const roomId = Math.random().toString(36).substring(2, 7).toUpperCase();
+        const gameRef = doc(gamesCollection, roomId);
+        await setDoc(gameRef, {
+          players: {
+            player1: {
+              uid: currentUserId,
+              name: currentPlayerName,
+              choice: null,
+              wantsToPlayAgain: false,
+            },
+            player2: null,
+          },
+        });
+        joinRoom(roomId);
+      });
+
+      joinRoomBtn.addEventListener("click", async () => {
+        if (!validatePlayerName()) return;
+        const roomId = roomCodeInput.value.trim().toUpperCase();
+        if (!roomId) {
+          lobbyError.textContent = "Kode room tidak boleh kosong.";
+          return;
+        }
+        const gameRef = doc(gamesCollection, roomId);
+        const docSnap = await getDoc(gameRef);
+        if (docSnap.exists()) {
+          const gameData = docSnap.data();
+          if (gameData.players.player2) {
+            lobbyError.textContent = "Room ini sudah penuh.";
+          } else {
+            await updateDoc(gameRef, {
+              "players.player2": {
+                uid: currentUserId,
+                name: currentPlayerName,
+                choice: null,
+                wantsToPlayAgain: false,
+              },
             });
             joinRoom(roomId);
-        });
-
-        joinRoomBtn.addEventListener('click', async () => {
-            if (!validatePlayerName()) return;
-            const roomId = roomCodeInput.value.trim().toUpperCase();
-            if (!roomId) {
-                lobbyError.textContent = 'Kode room tidak boleh kosong.';
-                return;
-            }
-            const gameRef = doc(gamesCollection, roomId);
-            const docSnap = await getDoc(gameRef);
-            if (docSnap.exists()) {
-                const gameData = docSnap.data();
-                if (gameData.players.player2) {
-                    lobbyError.textContent = 'Room ini sudah penuh.';
-                } else {
-                    await updateDoc(gameRef, {
-                        'players.player2': { uid: currentUserId, name: currentPlayerName, choice: null }
-                    });
-                    joinRoom(roomId);
-                }
-            } else {
-                lobbyError.textContent = 'Room tidak ditemukan.';
-            }
-        });
-
-        const joinRoom = (roomId) => {
-            currentRoomId = roomId;
-            switchView('game');
-            roomCodeDisplay.textContent = roomId;
-            listenToGameUpdates(roomId);
-        };
-
-        leaveRoomBtn.addEventListener('click', () => {
-            switchView('lobby');
-        });
-
-        copyCodeBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(currentRoomId).then(() => {
-                alert('Kode Room disalin!');
-            });
-        });
-
-        function listenToGameUpdates(roomId) {
-            const gameRef = doc(gamesCollection, roomId);
-            unsubscribeGame = onSnapshot(gameRef, (docSnap) => {
-                if (!docSnap.exists()) {
-                    switchView('lobby');
-                    return;
-                }
-                updateUI(docSnap.data());
-            });
+          }
+        } else {
+          lobbyError.textContent = "Room tidak ditemukan.";
         }
+      });
 
-        const updateUI = (gameState) => {
-            const players = gameState.players;
-            const p1 = players.player1;
-            const p2 = players.player2;
+      const joinRoom = (roomId) => {
+        currentRoomId = roomId;
+        switchView("game");
+        roomCodeDisplay.textContent = roomId;
+        listenToGameUpdates(roomId);
+      };
 
-            if (p1?.uid === currentUserId) playerNumber = 'player1';
-            if (p2?.uid === currentUserId) playerNumber = 'player2';
+      leaveRoomBtn.addEventListener("click", async () => {
+        if (!currentRoomId || !playerNumber) return;
+        const gameRef = doc(gamesCollection, currentRoomId);
+        if (playerNumber === "player1") {
+          await deleteDoc(gameRef);
+        } else {
+          await updateDoc(gameRef, { "players.player2": null });
+        }
+        switchView("lobby");
+      });
 
-            const myPlayer = players[playerNumber];
-            const opponentPlayer = playerNumber === 'player1' ? p2 : p1;
+      copyCodeBtn.addEventListener("click", () => {
+        if (!currentRoomId) return;
+        navigator.clipboard
+          .writeText(currentRoomId)
+          .then(() => {
+            showToast("Kode room disalin!", "success");
+          })
+          .catch((err) => {
+            console.error("Failed to copy text: ", err);
+            showToast("Gagal menyalin kode", "error");
+          });
+      });
 
-            player1NameEl.textContent = p1?.name || 'Pemain 1';
-            player2NameEl.textContent = p2?.name || 'Menunggu...';
-            p1Card.classList.toggle('border-indigo-500', playerNumber === 'player1');
-            p2Card.classList.toggle('border-indigo-500', playerNumber === 'player2');
+      function listenToGameUpdates(roomId) {
+        const gameRef = doc(gamesCollection, roomId);
+        unsubscribeGame = onSnapshot(gameRef, (docSnap) => {
+          if (!docSnap.exists()) {
+            if (playerNumber === "player2") {
+              showToast("Room ditutup oleh host.", "error");
+              setTimeout(() => switchView("lobby"), 3000);
+            }
+            return;
+          }
+          const gameState = docSnap.data();
+          const p1 = gameState.players.player1;
+          const p2 = gameState.players.player2;
 
-            const choiceMap = { rock: '🪨', paper: '📜', scissors: '✂️' };
-            const displayChoice = (player, element, isOpponent) => {
-                if (player?.choice) {
-                    if (!isOpponent || (p1.choice && p2.choice)) {
-                        element.textContent = choiceMap[player.choice];
-                    } else {
-                        element.textContent = '✅'; 
-                    }
-                } else {
-                    element.textContent = '?';
-                }
-            };
+          if (p1?.uid === currentUserId) playerNumber = "player1";
+          else if (p2?.uid === currentUserId) playerNumber = "player2";
+          else return;
 
-            displayChoice(players.player1, player1ChoiceText, playerNumber !== 'player1');
-            displayChoice(players.player2, player2ChoiceText, playerNumber !== 'player2');
-            
-            if (!p2) {
-                statusMessage.textContent = 'Bagikan kode untuk mengundang temanmu!';
-                choiceButtons.classList.add('hidden');
-                resultMessage.textContent = '';
+          const currentOpponent = playerNumber === "player1" ? p2 : p1;
+          if (opponentNameCache && !currentOpponent) {
+            showToast(`${opponentNameCache} keluar dari permainan.`, "info");
+            // No need to switch views, just let the game state reflect it
+          }
+          opponentNameCache = currentOpponent ? currentOpponent.name : "";
+
+          updateUI(gameState);
+        });
+      }
+
+      const updateUI = (gameState) => {
+        const { players } = gameState;
+        const p1 = players.player1,
+          p2 = players.player2;
+        if (!playerNumber || !players[playerNumber]) return;
+
+        const myPlayer = players[playerNumber];
+        const opponentPlayer =
+          players[playerNumber === "player1" ? "player2" : "player1"];
+
+        player1NameEl.textContent = p1?.name || "Pemain 1";
+        player2NameEl.textContent = p2?.name || "Menunggu...";
+        p1Card.classList.toggle(
+          "border-indigo-500",
+          playerNumber === "player1"
+        );
+        p2Card.classList.toggle(
+          "border-indigo-500",
+          playerNumber === "player2"
+        );
+
+        const choiceMap = { rock: "🪨", paper: "�", scissors: "✂️" };
+        const displayChoice = (player, element, isOpponent) => {
+          if (player?.choice) {
+            if (!isOpponent || (p1?.choice && p2?.choice)) {
+              element.textContent = choiceMap[player.choice];
             } else {
-                choiceButtons.classList.remove('hidden');
-                
-                if (!p1.choice || !p2.choice) {
-                    statusMessage.textContent = 'Silakan buat pilihanmu.';
-                    resultMessage.textContent = '';
-                    toggleChoiceButtons(!myPlayer?.choice);
-                    playAgainBtn.classList.add('hidden');
-                } else {
-                    const winner = determineWinner(p1.choice, p2.choice);
-                    if (winner === 'draw') resultMessage.textContent = 'Hasilnya Seri!';
-                    else if (winner === playerNumber) resultMessage.textContent = 'Kamu Menang! 🎉';
-                    else resultMessage.textContent = 'Kamu Kalah! 😞';
-                    
-                    statusMessage.textContent = 'Permainan Selesai!';
-                    toggleChoiceButtons(false);
-                    playAgainBtn.classList.remove('hidden');
-                }
+              element.textContent = "✅";
             }
+          } else {
+            element.textContent = "?";
+          }
         };
 
-        const toggleChoiceButtons = (enabled) => {
-            ['rock', 'paper', 'scissors'].forEach(id => {
-                const btn = document.getElementById(id);
-                btn.disabled = !enabled;
-                btn.style.opacity = enabled ? '1' : '0.5';
-            });
-        };
+        displayChoice(p1, player1ChoiceText, playerNumber !== "player1");
+        displayChoice(p2, player2ChoiceText, playerNumber !== "player2");
 
-        const determineWinner = (choice1, choice2) => {
-            if (choice1 === choice2) return 'draw';
-            if ((choice1 === 'rock' && choice2 === 'scissors') || (choice1 === 'paper' && choice2 === 'rock') || (choice1 === 'scissors' && choice2 === 'paper')) {
-                return 'player1';
-            }
-            return 'player2';
-        };
+        if (!p2) {
+          statusMessage.textContent = "Bagikan kode untuk mengundang temanmu!";
+          choiceButtons.classList.add("hidden");
+          playAgainBtn.classList.add("hidden-view");
+          resultMessage.textContent = "";
+        } else if (!p1.choice || !p2.choice) {
+          choiceButtons.classList.remove("hidden");
+          playAgainBtn.classList.add("hidden-view");
+          resultMessage.textContent = "";
+          toggleChoiceButtons(!myPlayer.choice);
+          if (!myPlayer.choice && !opponentPlayer.choice) {
+            statusMessage.textContent = "Mulai! Silakan buat pilihanmu.";
+          } else if (myPlayer.choice && !opponentPlayer.choice) {
+            statusMessage.textContent = "Menunggu pilihan lawan...";
+          } else if (!myPlayer.choice && opponentPlayer.choice) {
+            statusMessage.textContent = "Lawan sudah memilih. Giliranmu!";
+          }
+        } else {
+          choiceButtons.classList.add("hidden");
+          playAgainBtn.classList.remove("hidden-view");
+          toggleChoiceButtons(false);
+          const winner = determineWinner(p1.choice, p2.choice);
+          if (winner === "draw") resultMessage.textContent = "Hasilnya Seri!";
+          else if (winner === playerNumber)
+            resultMessage.textContent = "Kamu Menang! 🎉";
+          else resultMessage.textContent = "Kamu Kalah! 😞";
 
-        const handlePlayerChoice = async (choice) => {
-            if (!playerNumber || !currentRoomId) return;
+          if (myPlayer.wantsToPlayAgain) {
+            playAgainBtn.textContent = "Menunggu Lawan...";
+            playAgainBtn.disabled = true;
+            statusMessage.textContent = "Menunggu persetujuan lawan...";
+          } else if (opponentPlayer.wantsToPlayAgain) {
+            playAgainBtn.textContent = "Lawan Ingin Main Lagi!";
+            playAgainBtn.disabled = false;
+            statusMessage.textContent = "Setujui untuk memulai ronde baru.";
+          } else {
+            playAgainBtn.textContent = "Main Lagi";
+            playAgainBtn.disabled = false;
+            statusMessage.textContent = "Permainan Selesai!";
+          }
+
+          if (
+            p1.wantsToPlayAgain &&
+            p2.wantsToPlayAgain &&
+            playerNumber === "player1"
+          ) {
             const gameRef = doc(gamesCollection, currentRoomId);
-            const fieldToUpdate = `players.${playerNumber}.choice`;
-            await updateDoc(gameRef, { [fieldToUpdate]: choice });
-        };
+            updateDoc(gameRef, {
+              "players.player1.choice": null,
+              "players.player1.wantsToPlayAgain": false,
+              "players.player2.choice": null,
+              "players.player2.wantsToPlayAgain": false,
+            });
+          }
+        }
+      };
 
-        playAgainBtn.addEventListener('click', async () => {
-            if (playerNumber === 'player1') { 
-                const gameRef = doc(gamesCollection, currentRoomId);
-                await updateDoc(gameRef, {
-                    'players.player1.choice': null,
-                    'players.player2.choice': null
-                });
-            }
+      playAgainBtn.addEventListener("click", async () => {
+        if (!playerNumber || !currentRoomId) return;
+        const gameRef = doc(gamesCollection, currentRoomId);
+        const fieldToUpdate = `players.${playerNumber}.wantsToPlayAgain`;
+        await updateDoc(gameRef, { [fieldToUpdate]: true });
+      });
+
+      const toggleChoiceButtons = (enabled) => {
+        ["rock", "paper", "scissors"].forEach((id) => {
+          const btn = document.getElementById(id);
+          btn.disabled = !enabled;
+          btn.style.opacity = enabled ? "1" : "0.5";
         });
+      };
+      const determineWinner = (c1, c2) => {
+        if (c1 === c2) return "draw";
+        if (
+          (c1 === "rock" && c2 === "scissors") ||
+          (c1 === "paper" && c2 === "rock") ||
+          (c1 === "scissors" && c2 === "paper")
+        )
+          return "player1";
+        return "player2";
+      };
+      const handlePlayerChoice = async (choice) => {
+        if (!playerNumber || !currentRoomId) return;
+        const gameRef = doc(gamesCollection, currentRoomId);
+        const fieldToUpdate = `players.${playerNumber}.choice`;
+        await updateDoc(gameRef, { [fieldToUpdate]: choice });
+      };
+      document
+        .getElementById("rock")
+        .addEventListener("click", () => handlePlayerChoice("rock"));
+      document
+        .getElementById("paper")
+        .addEventListener("click", () => handlePlayerChoice("paper"));
+      document
+        .getElementById("scissors")
+        .addEventListener("click", () => handlePlayerChoice("scissors"));
 
-        document.getElementById('rock').addEventListener('click', () => handlePlayerChoice('rock'));
-        document.getElementById('paper').addEventListener('click', () => handlePlayerChoice('paper'));
-        document.getElementById('scissors').addEventListener('click', () => handlePlayerChoice('scissors'));
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserId = user.uid;
-            }
-        });
-        
-        signInAnonymously(auth).catch((error) => {
-            console.error("Error signing in anonymously:", error);
-            lobbyError.textContent = 'Gagal terhubung ke server.';
-        });
-
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUserId = user.uid;
+        }
+      });
+      signInAnonymously(auth).catch((error) => {
+        console.error("Error signing in anonymously:", error);
+        lobbyError.textContent = "Gagal terhubung ke server.";
+      });
     </script>
-</body>
+  </body>
 </html>
