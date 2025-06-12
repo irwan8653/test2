@@ -181,22 +181,6 @@
       ></button>
     </div>
 
-    <!-- MODAL NOTIFICATION -->
-    <div id="notification-modal" class="modal-overlay modal-hidden">
-      <div
-        class="bg-gray-800 text-white p-8 rounded-xl shadow-2xl text-center w-full max-w-sm"
-      >
-        <h3 id="notification-title" class="text-2xl font-bold mb-4"></h3>
-        <p id="notification-message" class="mb-6"></p>
-        <button
-          id="notification-ok-btn"
-          class="btn btn-primary py-2 px-8 rounded-lg"
-        >
-          OK
-        </button>
-      </div>
-    </div>
-
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
       import {
@@ -375,45 +359,16 @@
         switchView("lobby");
       });
 
-      // FIXED: Replaced alert with a better notification
       copyCodeBtn.addEventListener("click", () => {
-        if (!currentRoomId) return;
         navigator.clipboard
           .writeText(currentRoomId)
-          .then(() => {
-            const originalContent = copyCodeBtn.innerHTML;
-            copyCodeBtn.innerHTML = "✅";
-            copyCodeBtn.disabled = true;
-            setTimeout(() => {
-              copyCodeBtn.innerHTML = originalContent;
-              copyCodeBtn.disabled = false;
-            }, 2000); // Reset after 2 seconds
-          })
-          .catch((err) => {
-            console.error("Failed to copy text: ", err);
-          });
+          .then(() => alert("Kode Room disalin!"));
       });
 
       function listenToGameUpdates(roomId) {
         const gameRef = doc(gamesCollection, roomId);
         let hasOpponentLeft = false;
-        let opponentNameCache = "";
-
         unsubscribeGame = onSnapshot(gameRef, (docSnap) => {
-          // Opponent left (P1's perspective when P2 leaves)
-          if (docSnap.exists() && playerNumber === "player1") {
-            const currentOpponent = docSnap.data().players.player2;
-            if (opponentNameCache && !currentOpponent) {
-              showNotification(
-                "Lawan Keluar",
-                `${opponentNameCache} telah meninggalkan permainan.`
-              );
-              return; // Stop further processing for this snapshot
-            }
-            opponentNameCache = currentOpponent ? currentOpponent.name : "";
-          }
-
-          // Room was deleted (P2's perspective when P1 leaves)
           if (!docSnap.exists()) {
             if (playerNumber === "player2") {
               showNotification(
@@ -423,8 +378,28 @@
             }
             return;
           }
-
           const gameState = docSnap.data();
+
+          if (
+            playerNumber &&
+            gameState.players[playerNumber] &&
+            !gameState.players[
+              playerNumber === "player1" ? "player2" : "player1"
+            ] &&
+            !hasOpponentLeft
+          ) {
+            const opponentName =
+              playerNumber === "player1"
+                ? player2NameEl.textContent
+                : player1NameEl.textContent;
+            if (opponentName !== "Menunggu...") {
+              showNotification(
+                "Lawan Keluar",
+                `${opponentName} telah meninggalkan permainan.`
+              );
+              hasOpponentLeft = true;
+            }
+          }
           updateUI(gameState);
         });
       }
@@ -437,7 +412,7 @@
         if (p1?.uid === currentUserId) playerNumber = "player1";
         if (p2?.uid === currentUserId) playerNumber = "player2";
 
-        if (!playerNumber || !players[playerNumber]) return;
+        if (!playerNumber) return;
 
         const myPlayer = players[playerNumber];
         const opponentPlayer =
@@ -498,6 +473,7 @@
             resultMessage.textContent = "Kamu Menang! 🎉";
           else resultMessage.textContent = "Kamu Kalah! 😞";
 
+          // --- LOGIKA PERSETUJUAN "MAIN LAGI" ADA DI SINI ---
           if (myPlayer.wantsToPlayAgain) {
             playAgainBtn.textContent = "Menunggu Lawan...";
             playAgainBtn.disabled = true;
