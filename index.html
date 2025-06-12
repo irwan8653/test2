@@ -375,16 +375,45 @@
         switchView("lobby");
       });
 
+      // FIXED: Replaced alert with a better notification
       copyCodeBtn.addEventListener("click", () => {
+        if (!currentRoomId) return;
         navigator.clipboard
           .writeText(currentRoomId)
-          .then(() => alert("Kode Room disalin!"));
+          .then(() => {
+            const originalContent = copyCodeBtn.innerHTML;
+            copyCodeBtn.innerHTML = "✅";
+            copyCodeBtn.disabled = true;
+            setTimeout(() => {
+              copyCodeBtn.innerHTML = originalContent;
+              copyCodeBtn.disabled = false;
+            }, 2000); // Reset after 2 seconds
+          })
+          .catch((err) => {
+            console.error("Failed to copy text: ", err);
+          });
       });
 
       function listenToGameUpdates(roomId) {
         const gameRef = doc(gamesCollection, roomId);
         let hasOpponentLeft = false;
+        let opponentNameCache = "";
+
         unsubscribeGame = onSnapshot(gameRef, (docSnap) => {
+          // Opponent left (P1's perspective when P2 leaves)
+          if (docSnap.exists() && playerNumber === "player1") {
+            const currentOpponent = docSnap.data().players.player2;
+            if (opponentNameCache && !currentOpponent) {
+              showNotification(
+                "Lawan Keluar",
+                `${opponentNameCache} telah meninggalkan permainan.`
+              );
+              return; // Stop further processing for this snapshot
+            }
+            opponentNameCache = currentOpponent ? currentOpponent.name : "";
+          }
+
+          // Room was deleted (P2's perspective when P1 leaves)
           if (!docSnap.exists()) {
             if (playerNumber === "player2") {
               showNotification(
@@ -394,28 +423,8 @@
             }
             return;
           }
-          const gameState = docSnap.data();
 
-          if (
-            playerNumber &&
-            gameState.players[playerNumber] &&
-            !gameState.players[
-              playerNumber === "player1" ? "player2" : "player1"
-            ] &&
-            !hasOpponentLeft
-          ) {
-            const opponentName =
-              playerNumber === "player1"
-                ? player2NameEl.textContent
-                : player1NameEl.textContent;
-            if (opponentName !== "Menunggu...") {
-              showNotification(
-                "Lawan Keluar",
-                `${opponentName} telah meninggalkan permainan.`
-              );
-              hasOpponentLeft = true;
-            }
-          }
+          const gameState = docSnap.data();
           updateUI(gameState);
         });
       }
@@ -428,7 +437,7 @@
         if (p1?.uid === currentUserId) playerNumber = "player1";
         if (p2?.uid === currentUserId) playerNumber = "player2";
 
-        if (!playerNumber) return;
+        if (!playerNumber || !players[playerNumber]) return;
 
         const myPlayer = players[playerNumber];
         const opponentPlayer =
@@ -489,7 +498,6 @@
             resultMessage.textContent = "Kamu Menang! 🎉";
           else resultMessage.textContent = "Kamu Kalah! 😞";
 
-          // --- LOGIKA PERSETUJUAN "MAIN LAGI" ADA DI SINI ---
           if (myPlayer.wantsToPlayAgain) {
             playAgainBtn.textContent = "Menunggu Lawan...";
             playAgainBtn.disabled = true;
